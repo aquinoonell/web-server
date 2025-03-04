@@ -1,55 +1,34 @@
 const express = require("express");
 const axios = require("axios");
-const cheerio = require("cheerio"); // For scraping article content
-const cors = require("cors"); // To handle CORS
+const cors = require("cors");
 
 const app = express();
-const port = 5100;
+const port = 5100; // Choose an available port
 
-// Enable CORS for all routes
-app.use(cors());
+app.use(cors()); // This enables CORS for all routes
 
-// Middleware to parse JSON bodies
-app.use(express.json());
-
-// API route to fetch and scrape article
-app.get("/fetch-article", async (req, res) => {
-    const { url } = req.query; // Get URL from query parameter
-
-    console.log("Received URL:", url); // Debug log
-
-    // Check if URL is provided
-    if (!url) {
-        return res.status(400).json({ error: "No URL provided" });
-    }
-
+app.get("/fetch-headlines", async (req, res) => {
     try {
-        // Fetch the HTML of the given article URL
-        const response = await axios.get(url);
-        const $ = cheerio.load(response.data);
+        const apiKey = "TcYcf2M9h6MiOANdPN3qIj8LOpX9mj4ldteYxMJ9"; // Put your API key here
+        const country = req.query.country || "us"; // Default to 'us' if no country provided
 
-        // Improved selectors to fetch article content
-        const articleContent =
-            $(".article-body").text() ||
-            $(".post-content").text() ||
-            $("main").find("p").text() || // Look for paragraphs in main
-            $("article").find("p").text(); // Look for paragraphs in article
+        const response = await axios.get(
+            `https://api.thenewsapi.com/v1/news/top?api_token=TcYcf2M9h6MiOANdPN3qIj8LOpX9mj4ldteYxMJ9&locale=us&limit=5`,
+            {
+                params: {
+                    country,
+                    apiKey,
+                },
+            },
+        );
 
-        // If no article content found, return an error
-        if (!articleContent) {
-            return res.status(404).json({ error: "Article content not found" });
-        }
-
-        // Send the article content back to the frontend
-        res.json({ article: articleContent });
+        res.json(response.data); // Send the data from the API response to the frontend
     } catch (error) {
-        // Log any errors and respond with a 500 status
-        console.error("Error fetching article:", error);
-        res.status(500).json({ error: "Failed to fetch article" });
+        console.error(error);
+        res.status(500).send("Failed to fetch news");
     }
 });
 
 app.listen(port, () => {
-    console.log(`Server running at http://localhost:${port}`);
+    console.log(`Proxy server running at http://localhost:${port}`);
 });
-
