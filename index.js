@@ -9,11 +9,13 @@ app.use(cors()); // This enables CORS for all routes
 
 app.get("/fetch-headlines", async (req, res) => {
     try {
-        const apiKey = "TcYcf2M9h6MiOANdPN3qIj8LOpX9mj4ldteYxMJ9"; // Put your API key here
+        const apiKey = "2fd444b95efb46ca99e7ea2a4cef970d"; // Put your API key here
         const country = req.query.country || "us"; // Default to 'us' if no country provided
 
         const response = await axios.get(
-            `https://api.thenewsapi.com/v1/news/top?api_token=TcYcf2M9h6MiOANdPN3qIj8LOpX9mj4ldteYxMJ9&locale=us&limit=5`,
+            "https://newsapi.org/v2/top-headlines?" +
+            "country=us&" +
+            "apiKey=2fd444b95efb46ca99e7ea2a4cef970d",
             {
                 params: {
                     country,
